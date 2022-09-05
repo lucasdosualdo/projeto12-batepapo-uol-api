@@ -24,7 +24,7 @@ app.post('/participants', async (req, res) => {
     const {name}=req.body;
     const repeatedName = await db.collection('participants').findOne({name: name});
      if (repeatedName){
-         res.sendStatus(409);
+         res.status(409).send('nome já existente');
          return;
      }
 
@@ -36,7 +36,8 @@ app.post('/participants', async (req, res) => {
     }
     try {
         const insertName = await db.collection('participants').insertOne({
-            name
+            name,
+            lastStatus: Date.now()
         });  
         res.status(201).send("ok");
         return
