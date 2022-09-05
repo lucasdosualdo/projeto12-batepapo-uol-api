@@ -21,6 +21,13 @@ let db;
  });
 
 app.post('/participants', async (req, res) => {
+    const {name}=req.body;
+    const repeatedName = await db.collection('participants').findOne({name: name});
+     if (repeatedName){
+         res.sendStatus(409);
+         return;
+     }
+
     const validation = participantsSchema.validate(req.body);
     if (validation.error){
         const err = validation.error.details.map(err=>err.message);
