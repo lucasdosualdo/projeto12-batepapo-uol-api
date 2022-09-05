@@ -138,4 +138,21 @@ app.post('/status', async (req, res)=>{
     }
 });
 
+ async function removeInactiveUsers() {
+   const maxActiveTime = 10*1000;
+   const currentTime = Date.now();
+   try{
+    let nameList = await db.collection('participants').find().toArray();
+    nameList = nameList.map(async time=>{
+        if ((currentTime-time.lastStatus) > maxActiveTime){
+            await db.collection('participants').deleteOne({lastStatus: time.lastStatus})
+        }
+    });
+   } catch (error) {
+    return error.message
+   }
+ }
+
+setInterval(removeInactiveUsers, 15000)
+
 app.listen(5000);
