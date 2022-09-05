@@ -35,11 +35,18 @@ app.post('/participants', async (req, res) => {
         return;
     }
     try {
-        const insertName = await db.collection('participants').insertOne({
+        await db.collection('participants').insertOne({
             name,
             lastStatus: Date.now()
-        });  
-        res.status(201).send("ok");
+        });
+        await db.collection('message').insertOne({
+            from: name,
+            to: 'Todos',
+            text: 'entra na sala....',
+            type: 'status',
+            time: dayjs().format("HH:mm:ss")
+        });
+        res.status(201).send("nome criado");
         return
     } catch (error) {
         res.status(500).send(error.message);
