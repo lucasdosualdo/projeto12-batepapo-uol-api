@@ -145,7 +145,14 @@ app.post('/status', async (req, res)=>{
     let nameList = await db.collection('participants').find().toArray();
     nameList = nameList.map(async time=>{
         if ((currentTime-time.lastStatus) > maxActiveTime){
-            await db.collection('participants').deleteOne({lastStatus: time.lastStatus})
+            await db.collection('participants').deleteOne({lastStatus: time.lastStatus});
+            await db.collection('messages').insertOne({
+                from: time.name,
+                to: 'Todos',
+                text: 'sai da sala...',
+                type: 'status',
+                time: dayjs().format("HH:mm:ss")
+            })
         }
     });
    } catch (error) {
