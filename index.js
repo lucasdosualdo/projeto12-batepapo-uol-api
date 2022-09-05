@@ -93,6 +93,26 @@ app.post('/messages', async (req, res)=> {
     } catch (error){
         res.status(500).send(error.message);
     }
+});
+
+app.get('/messages', async (req, res)=> {
+    const {limit}=parseInt(req.query);
+    const {user}=req.headers;
+    try{
+        const publicMessages = await db.collection('messages').find({type: 'message'}).toArray();
+        const messagesFromUser = await db.collection('messages').find({
+            type: 'private_message',
+            from: user
+        }).toArray();
+        const messagesToUser = await db.collection('messages').find({
+            type: 'private_message',
+            to: user
+        }).toArray();
+        const messagesList = publicMessages.concat(messagesFromUser, messagesToUser)
+        res.send(messagesList);
+    } catch (error){
+        res.status(500).send(error.message);
+    }
 })
 
 app.listen(5000);
