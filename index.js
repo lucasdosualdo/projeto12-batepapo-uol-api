@@ -16,4 +16,27 @@ let db;
         db=mongoClient.db('project-12-uol');
     });
 
+ const participantsSchema = joi.object({
+     name: joi.string().required()
+ });
+
+app.post('/participants', async (req, res) => {
+    const validation = participantsSchema.validate(req.body);
+    if (validation.error){
+        const err = validation.error.details.map(err=>err.message);
+        res.status(422).send(err);
+        return;
+    }
+    try {
+        const insertName = await db.collection('participants').insertOne({
+            name
+        });  
+        res.status(201).send("ok");
+        return
+    } catch (error) {
+        res.status(500).send(error.message);
+        return
+    }
+});
+
 app.listen(5000);
