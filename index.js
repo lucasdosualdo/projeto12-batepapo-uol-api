@@ -96,7 +96,7 @@ app.post('/messages', async (req, res)=> {
 });
 
 app.get('/messages', async (req, res)=> {
-    const {limit}=parseInt(req.query);
+    const limit = parseInt(req.query.limit);
     const {user}=req.headers;
     try{
         const publicMessages = await db.collection('messages').find({type: 'message'}).toArray();
@@ -108,11 +108,16 @@ app.get('/messages', async (req, res)=> {
             type: 'private_message',
             to: user
         }).toArray();
-        const messagesList = publicMessages.concat(messagesFromUser, messagesToUser)
-        res.send(messagesList);
+        let messagesList = publicMessages.concat(messagesFromUser, messagesToUser);
+        messagesList = messagesList.sort((a, b)=> a.time.localeCompare(b.time));
+        if (limit && limit !== NaN){
+            res.send(messagesList.slice(-limit));
+            return;
+        }
+        res.send(messagesList);    
     } catch (error){
         res.status(500).send(error.message);
     }
-})
+});
 
 app.listen(5000);
